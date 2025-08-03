@@ -25,6 +25,6 @@ kubectl get cronjob my-cronjob -n mateapp
 kubectl get jobs -n mateapp
 	4.	Після запуску CronJob знайдіть відповідний pod і перегляньте логи:
 
-kubectl get pods -n mateapp –selector=job-name=<імʼя-jobʼа>
+kubectl get pods -n mateapp –-selector=job-name=<імʼя-jobʼа>
 kubectl logs -n mateapp <імʼя-podʼа>
 	5.	У логах повинно бути видно запит до ендпоінта /api/health або повідомлення Health check failed, якщо сервіс недоступний.
