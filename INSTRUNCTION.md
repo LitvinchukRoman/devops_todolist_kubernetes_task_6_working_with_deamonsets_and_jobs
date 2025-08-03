@@ -1,43 +1,30 @@
-# Deployment Instructions
+ІНСТРУКЦІЯ З РОЗГОРТАННЯ РІШЕННЯ
+	1.	Упевніться, що в кластері існує namespace з назвою mateapp. Якщо ні — створіть його командою:
 
-## Prerequisites
-- Kubernetes cluster
-- Namespace `mateapp` must exist
-- `kubectl` configured and connected to your cluster
+kubectl create namespace mateapp
+	2.	Застосуйте файл daemonset.yml для створення DaemonSet:
 
-## Deploy DaemonSet
-
-```sh
 kubectl apply -f daemonset.yml
-
-Deploy CronJob
+	3.	Застосуйте файл cronjob.yml для створення CronJob:
 
 kubectl apply -f cronjob.yml
 
-Validation Instructions
-
-Check DaemonSet logs
-
-kubectl get pods -n mateapp -l app=curl-daemon
-kubectl logs -n mateapp <daemon-pod-name>
-
-Logs should show continuous curl requests every 5 seconds to the todoapp service.
-
-Check CronJob logs
-
-Wait 4+ minutes, then:
-
-kubectl get jobs -n mateapp
-kubectl get pods -n mateapp --selector=job-name=todoapp-healthcheck-<timestamp>
-kubectl logs -n mateapp <cronjob-pod-name>
-
-Logs should show the result of curl http://todoapp/api/health.
-
 ⸻
 
-Notes
-	•	Ensure todoapp is exposed via ClusterIP and accessible within the mateapp namespace.
-	•	You can monitor events with:
+ІНСТРУКЦІЯ З ПЕРЕВІРКИ РІШЕННЯ
+	1.	Перевірте, що DaemonSet створив по одному Pod-у на кожному вузлі:
 
-kubectl describe daemonset todoapp-curl-daemon -n mateapp
-kubectl describe cronjob todoapp-healthcheck -n mateapp
+kubectl get daemonset my-daemonset -n mateapp
+kubectl get pods -n mateapp -l app=mateapp
+	2.	Перегляньте логи одного з Pod-ів DaemonSet:
+
+kubectl logs -n mateapp <імʼя-podʼа>
+	3.	Перевірте, що CronJob запланований і виконується кожні 4 хвилини:
+
+kubectl get cronjob my-cronjob -n mateapp
+kubectl get jobs -n mateapp
+	4.	Після запуску CronJob знайдіть відповідний pod і перегляньте логи:
+
+kubectl get pods -n mateapp –selector=job-name=<імʼя-jobʼа>
+kubectl logs -n mateapp <імʼя-podʼа>
+	5.	У логах повинно бути видно запит до ендпоінта /api/health або повідомлення Health check failed, якщо сервіс недоступний.
